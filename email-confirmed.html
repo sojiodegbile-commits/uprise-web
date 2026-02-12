@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Confirmed – UPRISE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple:  #667eea;
+      --violet:  #764ba2;
+      --green:   #10B981;
+      --dark:    #0f0f1a;
+      --card:    #1a1a2e;
+      --border:  rgba(102,126,234,0.18);
+      --text:    #e8e8f0;
+      --muted:   #8888aa;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── animated mesh background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(102,126,234,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(118,75,162,0.15) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(16,185,129,0.06) 0%, transparent 60%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* subtle grid */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(102,126,234,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(102,126,234,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 56px 48px 48px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow:
+        0 0 0 1px rgba(102,126,234,0.08),
+        0 32px 80px rgba(0,0,0,0.5),
+        0 0 60px rgba(102,126,234,0.06);
+      animation: slideUp 0.7s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── icon ring ── */
+    .icon-wrap {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 32px;
+    }
+
+    .icon-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      background: linear-gradient(135deg, var(--green), var(--purple)) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      animation: spin 6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .icon-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(102,126,234,0.15));
+      border: 1px solid rgba(16,185,129,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      animation: pop 0.5s cubic-bezier(.34,1.56,.64,1) 0.4s both;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.4); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    /* ── text ── */
+    .logo {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.2s forwards;
+    }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 30%, var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeIn 0.5s ease 0.5s both;
+    }
+
+    .sub {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 36px;
+      animation: fadeIn 0.5s ease 0.65s both;
+    }
+
+    /* ── checklist ── */
+    .checklist {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.5s ease 0.75s both;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .check {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: rgba(16,185,129,0.12);
+      border: 1px solid rgba(16,185,129,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      color: var(--green);
+    }
+
+    /* ── button ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--violet) 100%);
+      color: #fff;
+      box-shadow: 0 8px 32px rgba(102,126,234,0.35);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      animation: fadeIn 0.5s ease 0.9s both;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(102,126,234,0.5);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    /* ── footer note ── */
+    .note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      animation: fadeIn 0.5s ease 1s both;
+    }
+
+    /* ── success pulse ── */
+    .pulse {
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      border: 1px solid rgba(16,185,129,0.2);
+      animation: pulse 2s ease-out 0.8s infinite;
+    }
+
+    .pulse2 {
+      animation-delay: 1.2s;
+    }
+
+    @keyframes pulse {
+      0%   { transform: scale(0.8); opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+
+      <div class="logo">UPRISE</div>
+
+      <div class="icon-wrap">
+        <div class="pulse"></div>
+        <div class="pulse pulse2"></div>
+        <div class="icon-ring"></div>
+        <div class="icon-circle">✅</div>
+      </div>
+
+      <h1>Email Confirmed!</h1>
+      <p class="sub">
+        Your account is verified and ready to go.<br/>
+        Your wellness journey starts now.
+      </p>
+
+      <ul class="checklist">
+        <li><span class="check">✓</span> Mission-based wake-up alarms</li>
+        <li><span class="check">✓</span> 20+ mental wellness habit templates</li>
+        <li><span class="check">✓</span> Mood tracking &amp; weekly insights</li>
+        <li><span class="check">✓</span> 7-day Premium trial — already active</li>
+      </ul>
+
+      <a href="uprise://" class="btn">Open UPRISE App →</a>
+
+      <p class="note">
+        If the app doesn't open, launch UPRISE manually and log in with your email and password.
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    // Auto-attempt deep link after short delay
+    setTimeout(() => {
+      window.location.href = 'uprise://';
+    }, 1800);
+  </script>
+</body>
+</html>
