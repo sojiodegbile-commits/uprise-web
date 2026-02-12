@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UPRISE – Authenticating...</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100vh;
+      background: #0f0f1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #e8e8f0;
+    }
+    .wrap {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .logo {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #667eea;
+      margin-bottom: 32px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(102,126,234,0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .text {
+      font-size: 16px;
+      color: #8888aa;
+    }
+    .error {
+      display: none;
+      margin-top: 20px;
+      padding: 14px 20px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      font-size: 13px;
+      color: #fca5a5;
+      max-width: 320px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">UPRISE</div>
+    <div class="spinner"></div>
+    <p class="text" id="statusText">Verifying your link...</p>
+    <div class="error" id="errorBox"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://srqtrayblmwmtehexwes.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNycXRyYXlibG13bXRlaGV4d2VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MzA2NTEsImV4cCI6MjA4NDUwNjY1MX0.fTvhHFS3s39WLM7txSvHfQsOVNZjZpKVlGMG9-lKXmQ';
+
+    const { createClient } = supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { detectSessionInUrl: true, flowType: 'pkce' }
+    });
+
+    // Read ALL params from both hash and query
+    const hash = window.location.hash.substring(1);
+    const query = window.location.search.substring(1);
+    const hashParams = new URLSearchParams(hash);
+    const queryParams = new URLSearchParams(query);
+
+    const code        = queryParams.get('code');
+    const token       = queryParams.get('token') || hashParams.get('access_token');
+    const type        = queryParams.get('type')  || hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    async function handleAuth() {
+      try {
+        if (code) {
+          // PKCE flow - exchange code for session
+          document.getElementById('statusText').textContent = 'Exchanging code...';
+          const { data, error } = await client.auth.exchangeCodeForSession(code);
+
+          if (error) {
+            showError('Verification failed: ' + error.message);
+            return;
+          }
+
+          // Redirect based on type
+          if (type === 'recovery') {
+            // Password reset - pass session tokens to reset page
+            const session = data.session;
+            window.location.href = `/reset-password.html#access_token=${session.access_token}&refresh_token=${session.refresh_token}&type=recovery`;
+          } else {
+            // Email confirmation
+            window.location.href = '/email-confirmed.html';
+          }
+
+        } else if (accessToken) {
+          // Implicit flow - already have tokens
+          if (type === 'recovery') {
+            window.location.href = `/reset-password.html#access_token=${accessToken}&refresh_token=${refreshToken || ''}&type=recovery`;
+          } else {
+            window.location.href = '/email-confirmed.html';
+          }
+
+        } else if (token) {
+          // OTP token flow
+          document.getElementById('statusText').textContent = 'Verifying token...';
+          const { data, error } = await client.auth.verifyOtp({
+            token_hash: token,
+            type: type || 'recovery'
+          });
+
+          if (error) {
+            showError('Verification failed: ' + error.message);
+            return;
+          }
+
+          if (type === 'recovery') {
+            const session = data.session;
+            window.location.href = `/reset-password.html#access_token=${session.access_token}&refresh_token=${session.refresh_token}&type=recovery`;
+          } else {
+            window.location.href = '/email-confirmed.html';
+          }
+
+        } else {
+          showError('Invalid or expired link. Please request a new one from the UPRISE app.');
+        }
+
+      } catch (e) {
+        showError('Something went wrong: ' + e.message);
+      }
+    }
+
+    function showError(message) {
+      document.querySelector('.spinner').style.display = 'none';
+      document.getElementById('statusText').textContent = 'Verification failed';
+      const box = document.getElementById('errorBox');
+      box.style.display = 'block';
+      box.textContent = '⚠️ ' + message;
+    }
+
+    handleAuth();
+  </script>
+</body>
+</html>
+html ✅
