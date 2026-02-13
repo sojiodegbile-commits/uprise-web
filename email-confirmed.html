@@ -10,8 +10,7 @@
     :root {
       --purple: #667eea; --violet: #764ba2; --green: #10B981;
       --dark: #0f0f1a; --card: #1a1a2e;
-      --border: rgba(102,126,234,0.18); --text: #e8e8f0;
-      --muted: #8888aa;
+      --border: rgba(102,126,234,0.18); --text: #e8e8f0; --muted: #8888aa;
     }
     html, body { min-height: 100vh; background: var(--dark); font-family: 'DM Sans', sans-serif; color: var(--text); overflow-x: hidden; }
     body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(102,126,234,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(118,75,162,0.15) 0%, transparent 55%); z-index: 0; pointer-events: none; }
@@ -35,9 +34,8 @@
     .btn { display: block; width: 100%; padding: 16px 24px; border-radius: 14px; border: none; cursor: pointer; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.02em; background: linear-gradient(135deg, var(--purple) 0%, var(--violet) 100%); color: #fff; box-shadow: 0 8px 32px rgba(102,126,234,0.35); transition: transform 0.18s ease, box-shadow 0.18s ease; text-decoration: none; text-align: center; animation: fadeIn 0.5s ease 0.9s both; }
     .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(102,126,234,0.5); }
     .note { margin-top: 20px; font-size: 12px; color: var(--muted); line-height: 1.6; text-align: center; animation: fadeIn 0.5s ease 1s both; }
-    .loading { font-size: 14px; color: var(--muted); margin-bottom: 16px; animation: fadeIn 0.3s ease both; }
-    .spinner { width: 24px; height: 24px; border: 2px solid rgba(102,126,234,0.2); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
-    .error-banner { display: none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: #fca5a5; line-height: 1.5; }
+    .spinner { width: 48px; height: 48px; border: 3px solid rgba(102,126,234,0.2); border-top-color: var(--purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px; }
+    .error-banner { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: #fca5a5; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -48,7 +46,7 @@
       <div id="loadingState">
         <div class="logo">UPRISE</div>
         <div class="spinner"></div>
-        <p class="loading">Confirming your email...</p>
+        <p style="font-size: 14px; color: #8888aa;">Confirming your email...</p>
       </div>
 
       <!-- Success state -->
@@ -69,7 +67,7 @@
           <div class="feature premium">💎 &nbsp; 7-day Premium trial — active!</div>
         </div>
         <a href="uprise://" class="btn">Open UPRISE App →</a>
-        <p class="note">Can't open? Launch the app manually and log in with your email and password.</p>
+        <p class="note">Can't open? Launch the app manually and log in.</p>
       </div>
 
       <!-- Error state -->
@@ -80,9 +78,9 @@
           <div class="icon-circle">⚠️</div>
         </div>
         <h1>Link Expired</h1>
-        <p class="sub">This confirmation link has expired or already been used.</p>
-        <div class="error-banner" id="errorBanner" style="display:block;"></div>
-        <p class="note" style="margin-top:0;">Open the UPRISE app and sign up again to get a new confirmation email.</p>
+        <p class="sub" style="margin-bottom:16px;">This confirmation link has expired or already been used.</p>
+        <div class="error-banner" id="errorBanner"></div>
+        <p class="note" style="margin-top:16px;">Open the UPRISE app and sign up again to get a new confirmation email.</p>
       </div>
 
     </div>
@@ -96,12 +94,11 @@
     const { createClient } = supabase;
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Read token and email from URL query params
+    // Read token and email from URL
     const query = window.location.search.substring(1);
     const queryParams = new URLSearchParams(query);
     const token = queryParams.get('token');
     const email = queryParams.get('email');
-    const type = queryParams.get('type') || 'signup';
 
     async function confirmEmail() {
       if (!token || !email) {
@@ -110,7 +107,7 @@
       }
 
       try {
-        const { data, error } = await client.auth.verifyOtp({
+        const { error } = await client.auth.verifyOtp({
           email: email,
           token: token,
           type: 'signup'
@@ -121,7 +118,7 @@
           return;
         }
 
-        // Sign out after confirming so user logs in manually in the app
+        // Sign out after confirming - user must log in manually in the app
         await client.auth.signOut();
 
         showSuccess();
@@ -134,7 +131,6 @@
     function showSuccess() {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('successState').style.display = 'block';
-      // Try opening app after 2 seconds
       setTimeout(() => { window.location.href = 'uprise://'; }, 2000);
     }
 
@@ -144,7 +140,6 @@
       document.getElementById('errorBanner').textContent = '⚠️ ' + message;
     }
 
-    // Run on page load
     confirmEmail();
   </script>
 </body>
